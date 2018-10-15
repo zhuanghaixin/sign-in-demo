@@ -48,7 +48,10 @@ var server = http.createServer(function (request, response) {
         response.setHeader('Content-Type', 'text/html;charset=utf-8')
         console.log('request.headers.cookie')
         console.log(request.headers.cookie)
-        let cookies=request.headers.cookie.split('; ') //['email=1@','a=1','b=2']
+        let cookies=''
+        if(request.headers.cookie) {
+            cookies = request.headers.cookie.split('; ') //['email=1@','a=1','b=2']
+        }
         let hash={}
         for(let i=0;i<cookies.length;i++){
             let parts=cookies[i].split('=')
@@ -58,7 +61,13 @@ var server = http.createServer(function (request, response) {
         }
         console.log('hash')
         console.log(hash)
-        let email=hash.sign_in_email
+        let mySession=sessions[hash.sessionId]
+        let email
+        if(mySession){
+            email=mySession.sign_in_email
+        }
+        console.log('emial')
+        console.log(email)
         let users=fs.readFileSync('./db/users','utf8')
         users=JSON.parse(users)
         let foundUser
@@ -69,7 +78,7 @@ var server = http.createServer(function (request, response) {
                 break
             }
         }
-        console.log(typeof foundUser)
+        console.log( foundUser)
         console.log(foundUser==true)
         if(foundUser){
             console.log('登录成功')
@@ -219,13 +228,13 @@ var server = http.createServer(function (request, response) {
                 }
             }
             if(found){
-
+                let sessionId=Math.random()*10000
+                sessions[sessionId]={sign_in_email:email}
                 response.setHeader('Content-Type', 'text/html;charset=utf-8')
-                response.setHeader('Set-Cookie',`sign_in_email=${email}`)
-                response.setHeader('Set-Cookie',`sign_in_password=${password}`)
-                response.setHeader('Set-Cookie',`a=123`)
+
+                response.setHeader('Set-Cookie',`sessionId=${sessionId}`)
                 response.statusCode=200
-                console.log(1)
+                console.log(123)
 
             }else{
                 response.statusCode=401

@@ -47,9 +47,11 @@
         </div>
     </form>
 </div>
-<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script>
     let $form = $('#signInForm')
+    console.log($form)
     $form.on('submit', (e)=>{
         e.preventDefault()
         let hash = {}
@@ -73,9 +75,16 @@
         }
         $.post('/sign_in', hash)
             .then((response)=>{
-                window.location.href = '/'
+                window.location.href = '/'   //跳到首页
+                console.log(response)
             }, (request)=>{
                 alert('邮箱与密码不匹配')
+                let {error}=request.responseJSON
+                console.log(error)
+                if(error.email && error.email === 'invalid'){
+                    $form.find('[name="email"]').siblings('.error')
+                        .text('邮箱格式')
+                }
             })
     })
 </script>
